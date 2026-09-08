@@ -5,7 +5,7 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
 
-const ACCESS_TOKEN_TLL = '30m';
+const ACCESS_TOKEN_TLL = '30s';
 const REFRESH_TOKEN_TLL = 30 * 24 * 60 * 60 * 1000;
 
 // [POST] /api/auth/signup
@@ -124,4 +124,44 @@ export const signout = async (req, res) => {
             error: error.message 
         });
     }
+}
+
+// [POST] /api/auth/refresh
+export const refresh = async (req, res) => {
+    try {
+        // Lấy refreshToken từ cookie
+        const token = req.cookies?.refreshToken;
+        if(!token) {
+            return res.status(401).json({ message: "Không tìm thấy refreshToken" });
+        }
+
+        // So với refreshToken trong db
+        const session = await Session.findOne({
+            refreshToken: token
+        });
+        if(!session){
+            return res.status(401).json({
+                message: "RefreshToken không đúng hoặc đã hết hạn"
+            });
+        }
+
+        // Kiểm tra xem đã hết hạn chưa
+        if(session.expriresAt < new Date()){
+            return res.status(403).json({
+                message: "Token đã hết hạn"
+            });
+        }
+
+        // Tạo Token mới
+        const accessToken = jwt.sign({
+            userId: session.userId
+        }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: ACCESS_TOKEN_TLL });
+
+        return res.status(200).json({
+            accessToken: accessToken
+        });
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({message: "Lỗi hệ thống"});
+    } 
 }
