@@ -12,7 +12,7 @@ const sessionSchema = new mongoose.Schema(
             type: String,
             required: true
         },
-        expriresAt: {
+        expiresAt: {
             type: Date,
             required: true
         }
@@ -22,7 +22,7 @@ const sessionSchema = new mongoose.Schema(
     }
 );
 // Tự động xóa khi hết hạn
-sessionSchema.index({ expriresAt: 1 }, { expireAfterSeconds: 0 });
+sessionSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 });
 
 const Session = mongoose.model("Session", sessionSchema);
 export default Session;

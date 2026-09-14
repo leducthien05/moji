@@ -5,7 +5,7 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
 
-const ACCESS_TOKEN_TLL = '30s';
+const ACCESS_TOKEN_TLL = '30m';
 const REFRESH_TOKEN_TLL = 30 * 24 * 60 * 60 * 1000;
 
 // [POST] /api/auth/signup
@@ -33,14 +33,14 @@ export const signup = async (req, res) => {
             userName,
             email,
             password: passwordHash,
-            displayName: `${firstName} ${lastName}`
+            displayName: `${lastName} ${firstName}`
         });
 
         // Lưu user mới vào cơ sở dữ liệu
         await newUser.save();
-
+        const { passwordNew, ...userData } = newUser.toObject();
         // return 
-        res.status(200).json({ message: "Đăng ký thành công", user: newUser });
+        res.status(200).json({ message: "Đăng ký thành công", user: userData });
     } catch (error) {
         console.log(`Lỗi đăng ký: ${error}`);
         return res.status(500).json({ message: "Đăng ký thất bại", error: error.message });
@@ -81,7 +81,7 @@ export const signin = async (req, res) => {
         await Session.create({
             userId: user._id,
             refreshToken: refreshToken,
-            expriresAt: new Date(Date.now() + REFRESH_TOKEN_TLL)
+            expiresAt: new Date(Date.now() + REFRESH_TOKEN_TLL)
         });
 
         // Trả refreshToken về trong cookie
@@ -146,7 +146,7 @@ export const refresh = async (req, res) => {
         }
 
         // Kiểm tra xem đã hết hạn chưa
-        if(session.expriresAt < new Date()){
+        if(session.expiresAt < new Date()){
             return res.status(403).json({
                 message: "Token đã hết hạn"
             });

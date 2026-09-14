@@ -1,0 +1,125 @@
+import mongoose from "mongoose";
+
+const participantSchema = new mongoose.Schema({
+    userId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+        required: true
+    },
+    joinedAt: {
+        type: Date,
+        default: Date.now
+    }
+}, {
+    _id: false
+});
+
+const groupSchema = new mongoose.Schema({
+    name: {
+        type: String,
+        trim: true
+    },
+    groupAvatar: String,
+    createdBy: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User"
+    }
+}, {
+    _id: false
+});
+
+const lastMessageSchema = new mongoose.Schema({
+    _id: {
+        type: String
+    },
+    content: {
+        type: String,
+        default: null
+    },
+    senderId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+        required: true
+    },
+    createdAt: {
+        type: Date,
+        default: null
+    }
+
+}, {
+    _id: false
+});
+
+const conversationSchema = new mongoose.Schema({
+    type: {
+        type: String,
+        enum: ["direct", "group"],
+        required: true
+    },
+    participants: [
+        {
+            type: participantSchema
+        }
+    ],
+    group: {
+        type: groupSchema
+    },
+    lastMessageAt: {
+        type: Date
+    },
+    seenBy: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "User"
+        }
+    ],
+    lastMessage: {
+        type: lastMessageSchema
+    },
+    unreadCount: {
+        type: Map,
+        of: Number,
+        default: {}
+    }
+});
+
+conversationSchema.index({
+    "participants.userId": 1,
+    lastMessageAt: -1
+});
+
+const Conversation = mongoose.model("Conversation", conversationSchema, "conversation");
+
+export default Conversation;
+
+// Cấu trúc tổng quát
+
+//                     Conversation
+//                          │
+//         ┌────────────────┼────────────────┐
+//         │                │                │
+//        type         participants       group
+//         │                │                │
+//    direct/group          │          name/avatar
+//                          │
+//                   ┌──────┴──────┐
+//                   │             │
+//                 userId       joinedAt
+//                   │
+//                   ↓
+//                  User
+
+
+// Conversation
+//      │
+//      ├── lastMessageAt
+//      │
+//      ├── seenBy
+//      │      ├── User A
+//      │      └── User B
+//      │
+//      └── lastMessage
+//              ├── _id
+//              ├── content
+//              ├── senderId
+//              └── createdAt
