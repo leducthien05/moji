@@ -1,27 +1,20 @@
-import Signout from '@/components/auth/signout';
-import { Button } from '@/components/ui/button';
-import api from '@/lib/axios';
-import { useAuthStore } from '@/stores/useAuthStore';
-import { LogOut } from 'lucide-react';
+import { AppSidebar } from '@/components/sidebar/app-sidebar';
+import { SidebarProvider } from '@/components/ui/sidebar';
+import ChatWindowLayout from '@/components/chat/ChatWindowLayout';
+import { TooltipProvider } from '@/components/ui/tooltip';
 import React from 'react';
-import { toast } from 'sonner';
 
-export const ChatApp = () => {
-  const user = useAuthStore((state) => state.user);
-  const handOnClick = async ()=> {
-    try {
-      await api.get("/user/test", {withCredentials: true});
-      toast.success("ok");
-    } catch (error) {
-      toast.error("Thất bại");
-    }
-  }
+const ChatApp = () => {
   return (
-    <div>
-      <h1>Chat App</h1>
-      <p>Welcome, {user?.userName}!</p>
-      <Signout></Signout>
-      <Button onClick={handOnClick}>test</Button>
-    </div>
-  )
-}
+    <TooltipProvider>
+      <SidebarProvider>
+        <AppSidebar />
+        <div className='flex h-screen w-full p-2'>
+          <ChatWindowLayout />
+        </div>
+      </SidebarProvider>
+    </TooltipProvider>
+  );
+};
+
+export default ChatApp;

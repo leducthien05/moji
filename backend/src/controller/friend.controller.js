@@ -10,7 +10,7 @@ export const sendFriendRequest = async (req, res) => {
 
         const from = req.user._id;
 
-        if(to === from){
+        if(to.toString() === from.toString()){
             return res.status(400).json({ message: "Không thể gửi yêu cầu kết bạn cho chính mình" });
         }
 
@@ -26,13 +26,8 @@ export const sendFriendRequest = async (req, res) => {
             [userA, userB] = [userB, userA];
         }
 
-        const existingFriendship = await Friend.findOne({ userA, userB });
-        if (existingFriendship) {
-            return res.status(400).json({ message: "Hai người đã là bạn bè" });
-        }
-
-        const [readyRequest, existingRequest] = await Promise.all([
-            Friend.findOne({ from: to, to: from }),
+        const [alreadyFriend, existingRequest] = await Promise.all([
+            Friend.findOne({ userA, userB }),
             FriendRequest.findOne({ 
                 $or: [
                     {from, to},
@@ -41,7 +36,7 @@ export const sendFriendRequest = async (req, res) => {
             })
         ]);
 
-        if(readyRequest){
+        if(alreadyFriend){
             return res.status(400).message("Hai người đã là bạn bè");
         }
 
@@ -159,16 +154,6 @@ export const listFriend = async (req, res) => {
 
 // [DELETE] friend/:friendID/remove
 export const removeFriend = async (req, res) => {
-    try {
-        
-    } catch (error) {
-        console.error("Lỗi khi xóa bạn bè: ", error);
-        res.status(500).json({ message: "Lỗi khi xóa bạn bè" });
-    }
-}
-
-// [DELETE] friend/:friendID/cancel
-export const cancelFriendRequest = async (req, res) => {
     try {
         
     } catch (error) {

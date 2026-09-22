@@ -1,5 +1,5 @@
 import express from "express";
-import { cancelFriendRequest, sendFriendRequest, acceptFriendRequest, rejectFriendRequest, listFriend, listFriendRequest, removeFriend } from "../controller/friend.controller.js";
+import { sendFriendRequest, acceptFriendRequest, rejectFriendRequest, listFriend, listFriendRequest, removeFriend } from "../controller/friend.controller.js";
 
 const router = express.Router();
 
@@ -16,10 +16,7 @@ router.post("/request/:requestID/reject", rejectFriendRequest);
 router.get("/", listFriend);
 
 // Xóa bạn bè
-router.delete("/request/:requestID/remove", removeFriend); 
-
-// Xóa bạn bè
-router.delete("/request/:requestID/cancel", cancelFriendRequest);  
+router.delete("/request/:requestID/remove", removeFriend);  
 
 // Lấy danh sách gửi/nhận kết bạn
 router.get("/request", listFriendRequest);

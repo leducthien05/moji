@@ -43,8 +43,8 @@ export const createConversation = async (req, res) => {
             conversation = await Conversation.create({
                 type: "group",
                 participants: [
-                    { userId: userID },
-                    ...memberIDs.map((id) => ({ userId: id }))
+                    { userId: userID, joinedAt: new Date() },
+                    ...memberIDs.map((id) => ({ userId: id, joinedAt: new Date() }))
                 ],
                 group: {
                     name: name,
@@ -60,13 +60,13 @@ export const createConversation = async (req, res) => {
 
         await conversation.populate([
             {
-                path: "participants.userId", select: "displayName avatarUrl"
+                path: "participants.userId", select: "_id displayName avatarUrl"
             },
             {
-                path: "seenBy", select: "displayName avatarUrl"
+                path: "seenBy", select: "_id displayName avatarUrl"
             },
             {
-                path: "lastMessage", select: "displayName avatarUrl"
+                path: "lastMessage", select: "_id displayName avatarUrl"
             }
         ]);
 
@@ -128,7 +128,7 @@ export const getMessage = async (req, res) => {
         const {conversationId} = req.params;
         const { limit = 50, cursor} = req.query;
 
-        const query = { conversationId};
+        const query = { conversationId };
         if(cursor){
             query.createdAt = {$lt: new Date(cursor)};
         }
