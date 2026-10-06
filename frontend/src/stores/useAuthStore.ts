@@ -3,6 +3,7 @@ import { toast } from "sonner";
 import type { AuthState } from "@/types/store";
 import { authService } from "@/services/authService";
 import { persist } from "zustand/middleware";
+import { useChatStore } from "./useChatStore";
 
 export const useAuthStore = create<AuthState>()(
     persist((set, get) => ({
@@ -13,6 +14,8 @@ export const useAuthStore = create<AuthState>()(
         clearState: () => {
             set({ accessToken: null, user: null, loading: false });
             localStorage.clear();
+            useChatStore.getState().reset();
+
         },
 
         setAccessToken: (accessToken) => {
@@ -42,9 +45,12 @@ export const useAuthStore = create<AuthState>()(
             try {
                 set({ loading: true });
                 localStorage.clear();
+                useChatStore.getState().reset();
                 const { accessToken } = await authService.signIn(username, password);
-                get().setAccessToken(accessToken)
-                await authService.fetchMe();
+                get().setAccessToken(accessToken);
+                await get().fetchMe();
+                // await chatService.fetchConversations();
+                useChatStore.getState().fetchConversation();
                 toast.success("Đăng nhập thành công");
             } catch (error) {
                 console.error(error);
@@ -59,6 +65,7 @@ export const useAuthStore = create<AuthState>()(
             try {
                 set({ loading: true });
                 await authService.signOut();
+                console.log("Đã đăng xuất")
                 get().clearState();
                 toast.success("Đăng xuất thành công");
             } catch (error) {
@@ -73,7 +80,8 @@ export const useAuthStore = create<AuthState>()(
         fetchMe: async () => {
             try {
                 set({ loading: true });
-                const user = await authService.fetchMe();
+                const { user } = await authService.fetchMe();
+                console.log(user)
                 set({ user: user });
             } catch (error) {
                 console.error(error);

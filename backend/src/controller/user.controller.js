@@ -6,7 +6,7 @@ export const authMe = async (req, res) => {
         
         return res.status(200).json({
             message: "Truy xuất thành công",
-            data: user
+            user: user
         });
     } catch (error) {
         console.log(error);

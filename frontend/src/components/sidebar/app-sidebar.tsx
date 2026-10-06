@@ -1,6 +1,6 @@
 "use client"
 
-import * as React from "react"
+import * as React from "react";
 
 import { NavUser } from "@/components/sidebar/nav-user"
 import {
@@ -24,9 +24,11 @@ import GroupChatList from "../chat/GroupChatList"
 import NewFriendChat from "../chat/NewFriendChat"
 import FriendChatList from "../chat/FriendChatList"
 import { useThemeStore } from "@/stores/useThemeStore"
+import { useAuthStore } from "@/stores/useAuthStore"
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { isDark, toggleTheme } = useThemeStore();
+  const { user } = useAuthStore();
 
   return (
     <Sidebar variant="inset" {...props}>
@@ -101,7 +103,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
       {/* Footer */}
       <SidebarFooter>
-        {/* <NavUser user={data.user} />/ */}
+        {user && <NavUser user={user} />}
       </SidebarFooter>
     </Sidebar>
   )
